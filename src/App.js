@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { Button } from 'react-bootstrap'
-import logo from './logo.svg'
 import { helpers } from './helpers'
 import './App.css'
 
@@ -34,11 +33,13 @@ class App extends Component {
     const { isLoggedIn } = this.state
     if(isLoggedIn) {
       return (
-        <Button onClick={() => this.logoutUser()}>Logout</Button>
+        <Button bsClass="Login-button" onClick={() => this.logoutUser()}>Logout</Button>
       )
     } else {
+      // make sure user is actually logged out
+      helpers.logout()
       return (
-        <Button onClick={() => this.loginUser()}>Login</Button>
+        <Button bsClass="Login-button" onClick={() => this.loginUser()}>Login</Button>
       )
     }
   }
@@ -47,10 +48,9 @@ class App extends Component {
     return (
       <div className="App">
         <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
+          <h1 className="App-title">Flux Exercise</h1>
+          {this.renderLoginLogout()}
         </header>
-        {this.renderLoginLogout()}
       </div>
     )
   }
