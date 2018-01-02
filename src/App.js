@@ -1,24 +1,59 @@
-import React, { Component } from 'react';
-import { Button } from 'react-bootstrap';
-import logo from './logo.svg';
-import { config } from './config'
-import './App.css';
+import React, { Component } from 'react'
+import { Button } from 'react-bootstrap'
+import logo from './logo.svg'
+import { helpers } from './helpers'
+import './App.css'
 
 class App extends Component {
-  render() {
-    const sdk = new window.FluxSdk(config.flux_client_id, { redirectUri: config.url, fluxUrl: config.flux_url })
-    const helpers = new window.FluxHelpers(sdk)
+  constructor(props) {
+    super(props)
+    this.state = {
+      isLoggedIn: false
+    }
+  }
 
+  componentDidMount() {
+    helpers.storeFluxUser()
+      .then(() => helpers.isLoggedIn().then((res) => {
+        console.log('logged in (mount)? ', res)
+        this.setState({ isLoggedIn: res })
+      })
+    )
+  }
+
+  loginUser() {
+    helpers.redirectToFluxLogin()
+  }
+
+  logoutUser() {
+    helpers.logout()
+    this.setState({ isLoggedIn: false })
+  }
+
+  renderLoginLogout() {
+    const { isLoggedIn } = this.state
+    if(isLoggedIn) {
+      return (
+        <Button onClick={() => this.logoutUser()}>Logout</Button>
+      )
+    } else {
+      return (
+        <Button onClick={() => this.loginUser()}>Login</Button>
+      )
+    }
+  }
+
+  render() {
     return (
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to React</h1>
         </header>
-        <Button>Click Me</Button>
+        {this.renderLoginLogout()}
       </div>
-    );
+    )
   }
 }
 
-export default App;
+export default App
