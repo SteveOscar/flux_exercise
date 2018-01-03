@@ -8,12 +8,17 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      isLoggedIn: false
+      isLoggedIn: false,
+      projects: null
     }
   }
 
   componentDidUpdate() {
-    if(this.state.isLoggedIn) { this.initViewport() }
+    const { projects } = this.state
+    if(this.state.isLoggedIn) {
+      this.initViewport()
+      if(!projects) { this.setProjects() }
+    }
   }
 
   componentWillMount() {
@@ -25,6 +30,12 @@ class App extends Component {
     )
   }
 
+  async setProjects() {
+    const user = await helpers.getUser()
+    const projects = await user.listProjects()
+    this.setState({ projects })
+  }
+
   loginUser() {
     helpers.redirectToFluxLogin()
   }
@@ -32,6 +43,10 @@ class App extends Component {
   logoutUser() {
     helpers.logout()
     this.setState({ isLoggedIn: false })
+  }
+
+  getProjects() {
+    return this.state.user.listProjects()
   }
 
   renderLoginLogout() {
@@ -52,13 +67,9 @@ class App extends Component {
   renderBody() {
     const { isLoggedIn } = this.state
     if(isLoggedIn) {
+      console.log('RENDERING BODY')
       return (
-        <div className="Content" ref='view'>
-          <div id='output'>
-            <div className='label'>From Flux</div>
-
-          </div>
-        </div>
+        <div className="Content" ref='view' />
       )
     } else {
       return (
@@ -71,10 +82,10 @@ class App extends Component {
     if(!this.refs.view) { return }
     // attach the viewport to the #div view
     const viewport = new window.FluxViewport(this.refs.view)
-    debugger
     // set up default lighting for the viewport
     viewport.setupDefaultLighting()
     viewport.setGeometryEntity(box_data)
+    viewport.setClearColor(0xffffff)
   }
 
   render() {
