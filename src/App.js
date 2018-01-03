@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Button } from 'react-bootstrap'
+import { Button, DropdownButton } from 'react-bootstrap'
 import { helpers, box_data } from './helpers'
 import './App.css'
 import flux from './flux.png';
@@ -9,7 +9,9 @@ class App extends Component {
     super(props)
     this.state = {
       isLoggedIn: false,
-      projects: null
+      projects: null,
+      dataTables: {},
+      projectCells: null
     }
   }
 
@@ -33,6 +35,7 @@ class App extends Component {
   async setProjects() {
     const user = await helpers.getUser()
     const projects = await user.listProjects()
+    this.fetchCells(projects)
     this.setState({ projects })
   }
 
@@ -64,10 +67,38 @@ class App extends Component {
     }
   }
 
+    /**
+   * Get a project's data table.
+   */
+  getDataTable(project) {
+    let { dataTables } = this.state
+    if (!(project.id in dataTables)) {
+      var dt = helpers.getUser().getDataTable(project.id)
+      dataTables[project.id] = { table: dt, handlers: {}, websocketOpen: false }
+    }
+    return dataTables[project.id]
+  }
+
+  /**
+   * Get a list of the project's cells (keys).
+   */
+  getCells(project) {
+    return this.getDataTable(project).table.listCells()
+  }
+
+  /**
+ * Fetch the cells (keys) of the currently selected project from Flux.
+ */
+  fetchCells(projects) {
+    if(!projects) { return }
+    // get the project's cells (keys) from flux (returns a promise)
+    const selectedProject = projects.entities[0]
+    this.getCells(selectedProject).then((data) => this.setState({ projectCells: data.entities }))
+  }
+
   renderBody() {
     const { isLoggedIn } = this.state
     if(isLoggedIn) {
-      console.log('RENDERING BODY')
       return (
         <div className="Content" ref='view' />
       )
