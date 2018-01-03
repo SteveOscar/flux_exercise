@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Button } from 'react-bootstrap'
-import { helpers } from './helpers'
+import { helpers, box_data } from './helpers'
 import './App.css'
 import flux from './flux.png';
 
@@ -12,7 +12,11 @@ class App extends Component {
     }
   }
 
-  componentDidMount() {
+  componentDidUpdate() {
+    if(this.state.isLoggedIn) { this.initViewport() }
+  }
+
+  componentWillMount() {
     helpers.storeFluxUser()
       .then(() => helpers.isLoggedIn().then((res) => {
         console.log('logged in (mount)? ', res)
@@ -49,13 +53,28 @@ class App extends Component {
     const { isLoggedIn } = this.state
     if(isLoggedIn) {
       return (
-        <h1>Hello User</h1>
+        <div className="Content" ref='view'>
+          <div id='output'>
+            <div className='label'>From Flux</div>
+
+          </div>
+        </div>
       )
     } else {
       return (
         <img src={flux} className="App-logo" alt="logo" />
       )
     }
+  }
+
+  initViewport() {
+    if(!this.refs.view) { return }
+    // attach the viewport to the #div view
+    const viewport = new window.FluxViewport(this.refs.view)
+    debugger
+    // set up default lighting for the viewport
+    viewport.setupDefaultLighting()
+    viewport.setGeometryEntity(box_data)
   }
 
   render() {
@@ -66,7 +85,7 @@ class App extends Component {
           <div className="Spacer" />
           {this.renderLoginLogout()}
         </header>
-        <div className="App-body">
+        <div className="App-body" ref='carl1'>
           {this.renderBody()}
         </div>
       </div>

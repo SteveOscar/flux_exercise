@@ -7,3 +7,23 @@ const config = {
 const sdk = new window.FluxSdk(config.flux_client_id, { redirectUri: config.url, fluxUrl: config.flux_url })
 
 export const helpers = new window.FluxHelpers(sdk)
+
+export const box_data = [
+  {
+    "dimensions": [
+      2,
+      2,
+      2
+    ],
+    "origin": [
+      0,
+      0,
+      0
+    ],
+    "primitive": "block",
+    "units": {
+      "dimensions": "meters",
+      "origin": "meters"
+    }
+  }
+]
