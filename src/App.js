@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Button } from 'react-bootstrap'
 import { helpers } from './helpers'
 import './App.css'
+import flux from './flux.png';
 
 class App extends Component {
   constructor(props) {
@@ -44,13 +45,30 @@ class App extends Component {
     }
   }
 
+  renderBody() {
+    const { isLoggedIn } = this.state
+    if(isLoggedIn) {
+      return (
+        <h1>Hello User</h1>
+      )
+    } else {
+      return (
+        <img src={flux} className="App-logo" alt="logo" />
+      )
+    }
+  }
+
   render() {
     return (
       <div className="App">
         <header className="App-header">
           <h1 className="App-title">Flux Exercise</h1>
+          <div className="Spacer" />
           {this.renderLoginLogout()}
         </header>
+        <div className="App-body">
+          {this.renderBody()}
+        </div>
       </div>
     )
   }

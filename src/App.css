@@ -5,31 +5,26 @@
   width: 100vw;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
-}
-
 .App-header {
   top: 0;
   width: 100vw;
   height: 100px;
   background-color: white;
-  color: grey;
+  color: #00bdd6;
   display: flex;
   flex-direction: row;
   align-items: center;
-  box-shadow: 5px 5px 5px grey
+  box-shadow: 5px 5px 5px #00bdd6
 }
 
 .App-title {
   flex: auto;
-  font-size: 2.5em;
+  font-size: 3.5em;
   font-family: OpenSans;
 }
 
-.App-intro {
-  font-size: large;
+.Spacer {
+  flex: 10;
 }
 
 .Login-button {
@@ -39,7 +34,26 @@
   font-family: OpenSans;
   background-color: transparent;
   border-width: 0px;
+  color: grey;
 }
+
+.App-intro {
+  font-size: large;
+}
+
+.App-body {
+  height: 90vh;
+  display: flex;
+  justify-content: center;
+}
+
+.App-logo {
+  top: 100px;
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+  align-self: center;
+}
+
 
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
