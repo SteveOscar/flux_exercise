@@ -8,18 +8,18 @@
 .App-header {
   top: 0;
   width: 100vw;
-  height: 100px;
+  height: 60px;
   background-color: white;
   color: #00bdd6;
   display: flex;
   flex-direction: row;
   align-items: center;
-  box-shadow: 5px 5px 5px #00bdd6
+  box-shadow: 1px 3px 2px #00bdd6
 }
 
 .App-title {
   flex: auto;
-  font-size: 3.5em;
+  font-size: 3em;
   font-family: OpenSans;
 }
 
@@ -61,7 +61,7 @@
 
 .Dropdown {
   background-color: white;
-  font-size: 1.5em;
+  font-size: 1em;
   text-decoration: underline;
   font-family: OpenSans;
 }

@@ -13,7 +13,8 @@ class App extends Component {
       projects: null,
       dataTables: {},
       projectCells: null,
-      selectedCell: null
+      selectedCell: null,
+      selectedProject: null
     }
   }
 
@@ -38,7 +39,7 @@ class App extends Component {
     const user = await helpers.getUser()
     const projects = await user.listProjects()
     this.fetchCells(projects)
-    this.setState({ projects })
+    this.setState({ projects: projects.entities })
   }
 
   loginUser() {
@@ -48,10 +49,6 @@ class App extends Component {
   logoutUser() {
     helpers.logout()
     this.setState({ isLoggedIn: false })
-  }
-
-  getProjects() {
-    return this.state.user.listProjects()
   }
 
   renderLoginLogout() {
@@ -114,8 +111,8 @@ class App extends Component {
   }
 
   initViewport() {
-    const { projects, projectCells, selectedCell } = this.state
-    if(!this.refs.view || !projectCells || !selectedCell) { return }
+    const { projects, projectCells, selectedCell, selectedProject } = this.state
+    if(!this.refs.view || !projectCells || !selectedCell || !selectedProject) { return }
     if(!selectedCell) { return null }
     const viewport = new window.FluxViewport(this.refs.view)
     viewport.setupDefaultLighting()
@@ -125,7 +122,8 @@ class App extends Component {
       this.setState({ selectedCell: null })
     } else {
       const cell = projectCells.find((cell) => cell.id === selectedCell.value)
-      this.getValue(projects.entities[0], cell).then((data) => {
+      const project = projects.find((project) => project.id === selectedProject.value)
+      this.getValue(project, cell).then((data) => {
         if(!data) { return null }
         let known = window.FluxViewport.isKnownGeom(data.value)
         if(data && known) { viewport.setGeometryEntity(data.value) }
@@ -133,20 +131,37 @@ class App extends Component {
     }
   }
 
-  renderDropDown() {
-    const { projectCells, selectedCell } = this.state
-    if(!projectCells) { return }
+  renderCellDropDown() {
+    const { projectCells, selectedCell, selectedProject } = this.state
+    if(!projectCells || !selectedProject) { return }
     const options = projectCells.map((cell) => {
       return { value: cell.id, label: cell.label }
     })
     if(selectedCell) { options.push({ value: 'clear_data', label: '*reset*'  }) }
     return (
-      <Dropdown className='Dropdown' value={selectedCell ? selectedCell.label : null} options={options} onChange={this.updateSelectedCell.bind(this)} placeholder="Select a cell" />
+      <Dropdown value={selectedCell ? selectedCell.label : null} options={options} onChange={this.updateSelectedCell.bind(this)} placeholder="Cell?" />
+    )
+  }
+
+  // Could refactor these two dropdown functions into one
+  renderProjectDropDown() {
+    const { projects, selectedProject } = this.state
+    if(!projects) { return }
+    const options = projects.map((project) => {
+      return { value: project.id, label: project.name }
+    })
+    if(selectedProject) { options.push({ value: 'clear_data', label: '*reset*'  }) }
+    return (
+      <Dropdown className='Dropdown' value={selectedProject ? selectedProject.label : null} options={options} onChange={this.updateSelectedProject.bind(this)} placeholder="Project?" />
     )
   }
 
   updateSelectedCell(selection) {
     this.setState({selectedCell: selection})
+  }
+
+  updateSelectedProject(selection) {
+    this.setState({selectedProject: selection})
   }
 
   render() {
@@ -155,8 +170,9 @@ class App extends Component {
         <header className="App-header">
           <h1 className="App-title">Flux Exercise</h1>
           <div className="Spacer" />
-          {this.renderDropDown()}
+          {this.renderCellDropDown()}
           {this.renderLoginLogout()}
+          {this.renderProjectDropDown()}
         </header>
         <div className="App-body" ref='carl1'>
           {this.renderBody()}
