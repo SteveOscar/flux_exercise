@@ -12,7 +12,8 @@ class App extends Component {
       isLoggedIn: false,
       projects: null,
       dataTables: {},
-      projectCells: null
+      projectCells: null,
+      selectedCell: null
     }
   }
 
@@ -68,9 +69,6 @@ class App extends Component {
     }
   }
 
-    /**
-   * Get a project's data table.
-   */
   getDataTable(project) {
     let { dataTables } = this.state
     if (!(project.id in dataTables)) {
@@ -81,16 +79,10 @@ class App extends Component {
     return dataTables[project.id]
   }
 
-  /**
-   * Get a list of the project's cells (keys).
-   */
   getCells(project) {
     return this.getDataTable(project).table.listCells()
   }
 
-  /**
- * Fetch the cells (keys) of the currently selected project from Flux.
- */
   fetchCells(projects) {
     if(!projects) { return }
     // get the project's cells (keys) from flux (returns a promise)
@@ -99,17 +91,10 @@ class App extends Component {
   }
 
 
-  // RENDER FLUX DATA
-  /**
-   * Get a specific project cell (key).
-   */
   getCell(project, cell) {
     return this.getDataTable(project).table.getCell(cell.id)
   }
 
-  /**
-   * Get the value contained in a cell (key).
-   */
   getValue(project, cell) {
     return this.getCell(project, cell).fetch()
   }
@@ -129,32 +114,39 @@ class App extends Component {
   }
 
   initViewport() {
-    const { projects, projectCells } = this.state
-    if(!this.refs.view || !projectCells) { return }
-    // Could be tracking a selected project in state here insead of using 0 index.
-    this.getValue(projects.entities[0], projectCells[0]).then((data) => {
-      const viewport = new window.FluxViewport(this.refs.view)
-      viewport.setupDefaultLighting()
-      viewport.setClearColor(0xffffff)
-      // if(!data) { viewport.setGeometryEntity(box_data) }
-      if(!data) { return null }
-      let known = window.FluxViewport.isKnownGeom(data.value[0].geometryParameters.geometry[0])
-      console.log('Known Geo data? ', known)
-      if(data && known) { viewport.setGeometryEntity(data.value[0].geometryParameters.geometry[0]) }
-      if(data && !known) { viewport.setGeometryEntity(box_data) }
-      // viewport.setGeometryEntity(box_data)
-    })
+    const { projects, projectCells, selectedCell } = this.state
+    if(!this.refs.view || !projectCells || !selectedCell) { return }
+    if(!selectedCell) { return null }
+    const viewport = new window.FluxViewport(this.refs.view)
+    viewport.setupDefaultLighting()
+    viewport.setClearColor(0xffffff)
+    if(selectedCell.value === 'clear_data') {
+      viewport.setGeometryEntity(null)
+      this.setState({ selectedCell: null })
+    } else {
+      const cell = projectCells.find((cell) => cell.id === selectedCell.value)
+      this.getValue(projects.entities[0], cell).then((data) => {
+        if(!data) { return null }
+        let known = window.FluxViewport.isKnownGeom(data.value)
+        if(data && known) { viewport.setGeometryEntity(data.value) }
+      })
+    }
   }
 
   renderDropDown() {
-    const { projectCells } = this.state
+    const { projectCells, selectedCell } = this.state
     if(!projectCells) { return }
     const options = projectCells.map((cell) => {
-      return {value: cell.id, label: cell.label}
+      return { value: cell.id, label: cell.label }
     })
+    if(selectedCell) { options.push({ value: 'clear_data', label: '*reset*'  }) }
     return (
-      <Dropdown options={options} onChange={() => {}} placeholder="Select a cell" />
+      <Dropdown className='Dropdown' value={selectedCell ? selectedCell.label : null} options={options} onChange={this.updateSelectedCell.bind(this)} placeholder="Select a cell" />
     )
+  }
+
+  updateSelectedCell(selection) {
+    this.setState({selectedCell: selection})
   }
 
   render() {
