@@ -33,7 +33,7 @@
 }
 
 .Login-button {
-  font-size: 1.2em;
+  font-size: 1.1em;
   font-family:monospace;
   color: #999;
   cursor: pointer;
@@ -46,6 +46,10 @@
 
 .App-intro {
   font-size: large;
+}
+
+.Dim {
+  opacity: .5;
 }
 
 .App-body {
