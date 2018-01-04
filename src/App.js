@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { Button } from 'react-bootstrap'
 import { helpers, box_data } from './helpers'
 import Dropdown from 'react-dropdown'
 import './App.css'
@@ -11,10 +10,10 @@ class App extends Component {
     this.state = {
       isLoggedIn: false,
       projects: null,
-      dataTables: {},
       projectCells: null,
       selectedCell: null,
-      selectedProject: null
+      selectedProject: null,
+      dataTables: {}
     }
   }
 
@@ -48,20 +47,20 @@ class App extends Component {
 
   logoutUser() {
     helpers.logout()
-    this.setState({ isLoggedIn: false })
+    this.setState({ isLoggedIn: false, selectedCell: null, selectedProject: null, projects: null, dataTables: {} })
   }
 
   renderLoginLogout() {
     const { isLoggedIn } = this.state
     if(isLoggedIn) {
       return (
-        <Button bsClass="Login-button" onClick={() => this.logoutUser()}>Logout</Button>
+        <div className="Login-button" onClick={() => this.logoutUser()}>Logout</div>
       )
     } else {
       // make sure user is actually logged out
       helpers.logout()
       return (
-        <Button bsClass="Login-button" onClick={() => this.loginUser()}>Login</Button>
+        <div className="Login-button" onClick={() => this.loginUser()}>Login</div>
       )
     }
   }
@@ -96,20 +95,6 @@ class App extends Component {
     return this.getCell(project, cell).fetch()
   }
 
-
-  renderBody() {
-    const { isLoggedIn } = this.state
-    if(isLoggedIn) {
-      return (
-        <div className="Content" ref='view' />
-      )
-    } else {
-      return (
-        <img src={flux} className="App-logo" alt="logo" />
-      )
-    }
-  }
-
   initViewport() {
     const { projects, projectCells, selectedCell, selectedProject } = this.state
     if(!this.refs.view || !projectCells || !selectedCell || !selectedProject) { return }
@@ -133,7 +118,7 @@ class App extends Component {
 
   renderCellDropDown() {
     const { projectCells, selectedCell, selectedProject } = this.state
-    if(!projectCells || !selectedProject) { return }
+    if(!projectCells || !selectedProject) { return (<Dropdown disabled placeholder="Cell" />) }
     const options = projectCells.map((cell) => {
       return { value: cell.id, label: cell.label }
     })
@@ -146,13 +131,12 @@ class App extends Component {
   // Could refactor these two dropdown functions into one
   renderProjectDropDown() {
     const { projects, selectedProject } = this.state
-    if(!projects) { return }
+    if(!projects) { return (<Dropdown disabled placeholder="Project" />) }
     const options = projects.map((project) => {
       return { value: project.id, label: project.name }
     })
-    if(selectedProject) { options.push({ value: 'clear_data', label: '*reset*'  }) }
     return (
-      <Dropdown className='Dropdown' value={selectedProject ? selectedProject.label : null} options={options} onChange={this.updateSelectedProject.bind(this)} placeholder="Project?" />
+      <Dropdown value={selectedProject ? selectedProject.label : null} options={options} onChange={this.updateSelectedProject.bind(this)} placeholder="Project" />
     )
   }
 
@@ -164,15 +148,30 @@ class App extends Component {
     this.setState({selectedProject: selection})
   }
 
+  renderBody() {
+    const { isLoggedIn, selectedCell } = this.state
+    if(isLoggedIn && selectedCell) {
+      return (
+        <div className="Content" ref='view' />
+      )
+    } else {
+      return (
+        <img src={flux} className="App-logo" alt="logo" />
+      )
+    }
+  }
+
   render() {
     return (
       <div className="App">
         <header className="App-header">
           <h1 className="App-title">Flux Exercise</h1>
-          <div className="Spacer" />
-          {this.renderCellDropDown()}
           {this.renderLoginLogout()}
-          {this.renderProjectDropDown()}
+          <div className="Dropdown-container">
+            {this.renderProjectDropDown()}
+            {this.renderCellDropDown()}
+          </div>
+          <div className="Spacer" />
         </header>
         <div className="App-body" ref='carl1'>
           {this.renderBody()}
